@@ -23,7 +23,7 @@ RUN pip install --upgrade gym
 RUN pip install --upgrade gym[atari]
 RUN pip install --upgrade gym[box2d]
 
-RUN pip install --upgrade http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp27-cp27mu-linux_x86_64.whl 
+RUN pip install --upgrade http://download.pytorch.org/whl/cpu/torch-0.4.0-cp27-cp27mu-linux_x86_64.whl 
 RUN pip install --upgrade torchvision 
 RUN pip install --upgrade keras
 RUN pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
@@ -32,7 +32,7 @@ RUN pip install --upgrade https://github.com/yandexdataschool/AgentNet/archive/m
 
 
 
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade pip
+RUN /home/main/anaconda/envs/python3/bin/pip install -U pip
 
 # python3: fix `GLIBCXX_3.4.20' not found - conda's libgcc blocked system's gcc-4.9 and libstdc++6
 RUN bash -c "conda update -y conda && source activate python3 && conda uninstall -y libgcc && source deactivate"
@@ -48,7 +48,7 @@ RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade gym[box2d]
 
 
 
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp35-cp35m-linux_x86_64.whl 
+RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade http://download.pytorch.org/whl/cpu/torch-0.4.0-cp35-cp35m-linux_x86_64.whl 
 RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade torchvision
 RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade keras
 RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
@@ -56,6 +56,6 @@ RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.co
 RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.com/yandexdataschool/AgentNet/archive/master.zip
 
 #install TF after everything else not to break python3's pyglet with python2's tensorflow
-RUN pip install --upgrade tensorflow==1.4.0
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade tensorflow==1.4.0
+RUN pip install --upgrade tensorflow --ignore-installed
+RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade tensorflow
 #TODO py3 doom once it's no longer broken
