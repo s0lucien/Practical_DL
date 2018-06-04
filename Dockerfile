@@ -58,4 +58,5 @@ RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.co
 #install TF after everything else not to break python3's pyglet with python2's tensorflow
 RUN pip install --upgrade tensorflow --ignore-installed
 RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade tensorflow
+RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade jupyter notebook ipykernel --ignore-installed
 #TODO py3 doom once it's no longer broken
