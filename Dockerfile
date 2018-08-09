@@ -1,61 +1,108 @@
-FROM andrewosh/binder-base
-MAINTAINER Alexander Panin <justheuristic@gmail.com>
-USER root
+FROM debian:stretch-slim
 
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list
-RUN apt-get -qq update
+ENV BUILD_PACKAGES="\
+        build-essential \
+        cmake \
+        curl \
+        gcc \
+        git \
+        linux-headers-4.9 \
+        make \
+        tcl-dev \
+        xz-utils \
+        zlib1g-dev \
+        " \
+    APT_PACKAGES="\
+        bash \
+        ca-certificates \
+        fonts-noto \
+        graphviz \
+        libbz2-dev \
+        libpng16-16 \
+        libfreetype6 \
+        libgomp1 \
+        libjpeg62-turbo \
+        libreadline-dev \
+        libssl-dev \
+        libsqlite3-dev \
+        openssl \
+        zlib1g-dev \
+        "
 
-RUN apt-get install -y gcc-4.9 g++-4.9 libstdc++6 wget unzip
-RUN apt-get install -y libopenblas-dev liblapack-dev libsdl2-dev 
-RUN apt-get install -y cmake zlib1g-dev libjpeg-dev 
-RUN apt-get install -y xvfb libav-tools xorg-dev python-opengl python3-opengl
-RUN apt-get -y install swig3.0
-RUN ln -s /usr/bin/swig3.0 /usr/bin/swig
+RUN set -ex; \
+    apt-get update && apt-get install -y --no-install-recommends ${BUILD_PACKAGES};
 
-
-USER main
-RUN pip install --upgrade pip
-RUN pip install --upgrade --ignore-installed setuptools  #fix https://github.com/tensorflow/tensorflow/issues/622
-RUN pip install --upgrade sklearn tqdm nltk editdistance joblib
-
-# install all gym stuff except mujoco - it fails at "import importlib.util" (no module named util)
-RUN pip install --upgrade gym
-RUN pip install --upgrade gym[atari]
-RUN pip install --upgrade gym[box2d]
-
-RUN pip install --upgrade http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp27-cp27mu-linux_x86_64.whl 
-RUN pip install --upgrade torchvision 
-RUN pip install --upgrade keras
-RUN pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
-RUN pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
-RUN pip install --upgrade https://github.com/yandexdataschool/AgentNet/archive/master.zip
-
-
-
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade pip
-
-# python3: fix `GLIBCXX_3.4.20' not found - conda's libgcc blocked system's gcc-4.9 and libstdc++6
-RUN bash -c "conda update -y conda && source activate python3 && conda uninstall -y libgcc && source deactivate"
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade matplotlib numpy scipy pandas
-
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade sklearn tqdm nltk editdistance joblib
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade --ignore-installed setuptools  #fix https://github.com/tensorflow/tensorflow/issues/622
-
-# install all gym stuff except mujoco - it fails at "mjmodel.h: no such file or directory"
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade gym
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade gym[atari]
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade gym[box2d]
+RUN set -ex; \
+    apt-get update && apt-get install -y --no-install-recommends ${APT_PACKAGES};
 
 
+WORKDIR /home
+ENV HOME=/home \
+    PYENV_ROOT=/home/.pyenv \
+    PYTHON_VERSION=3.6.6 \
+    PATH=/home/.pyenv/shims:/home/.pyenv/bin:$PATH \
+    JUPYTER_CONFIG_DIR=/home/.ipython/profile_default/startup \
+    LANG=C.UTF-8
 
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade http://download.pytorch.org/whl/cu80/torch-0.3.0.post4-cp35-cp35m-linux_x86_64.whl 
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade torchvision
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade keras
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.com/Theano/Theano/archive/master.zip
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.com/Lasagne/Lasagne/archive/master.zip
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade https://github.com/yandexdataschool/AgentNet/archive/master.zip
+RUN set -ex; \   
+    curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash;\
+    echo "export PATH=\"/home/.pyenv/bin:$PATH\"" | tee -a ${HOME}/.bash_profile; \
+    echo "$(pyenv init -)" | tee -a ${HOME}/.bash_profile; \
+    echo "$(pyenv virtualenv-init -)" | tee -a ${HOME}/.bash_profile; \
+    pyenv install ${PYTHON_VERSION}; \
+    pyenv global ${PYTHON_VERSION};
+    
+ENV PIP_PACKAGES="\
+        cffi \
+        editdistance \
+        graphviz \
+        h5py \
+        http://download.pytorch.org/whl/cpu/torch-0.3.1-cp36-cp36m-linux_x86_64.whl \
+        ipywidgets \
+        joblib \
+        keras \
+        requests \
+        pandas \
+        pillow \
+        pyyaml \
+        pymkl \
+        matplotlib \
+        mxnet-mkl\
+        nltk \
+        notebook \
+        numpy \
+        scipy \
+        scikit-learn \
+        seaborn \
+        tensorflow \
+        torchvision \
+        tqdm \
+        xgboost \
+        "
 
-#install TF after everything else not to break python3's pyglet with python2's tensorflow
-RUN pip install --upgrade tensorflow==1.4.0
-RUN /home/main/anaconda/envs/python3/bin/pip install --upgrade tensorflow==1.4.0
-#TODO py3 doom once it's no longer broken
+RUN set -ex; \
+    pip install -U -v pip; \
+    pip install -U -v ${PIP_PACKAGES}; \
+    pip install https://github.com/Theano/Theano/archive/master.zip; \
+    pip install https://github.com/Lasagne/Lasagne/archive/master.zip;\
+    jupyter nbextension enable --py widgetsnbextension; \
+    pyenv rehash; \
+    mkdir -p ${JUPYTER_CONFIG_DIR}; \
+    echo "import warnings" | tee ${JUPYTER_CONFIG_DIR}/config.py; \
+    echo "warnings.filterwarnings('ignore')" | tee -a ${JUPYTER_CONFIG_DIR}/config.py; \
+    echo "c.NotebookApp.token = u''" | tee -a ${JUPYTER_CONFIG_DIR}/config.py ;
+
+
+EXPOSE 8888 6006
+
+RUN mkdir /home/workspace 
+
+CMD [ "jupyter", "notebook", "--port=8888", "--no-browser", \
+    "--allow-root", "--ip=0.0.0.0", "--NotebookApp.token=", \
+    "--notebook-dir=/home/workspace" ]
+
+# build with
+# λ docker build . -t pydl:ready
+
+# start with 
+# λ docker run -p 8888:8888 -p 6006:6006 -it -v c:/Code/own/Practical_DL:/home/workspace pydl:ready
