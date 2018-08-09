@@ -75,3 +75,6 @@ debian/files
 *.substvars
 *.debhelper.log
 *-ubyte.gz
+week02_autodiff/notMNIST*
+homework01/mnist.npz
+week03_convnets/cifar_data*
