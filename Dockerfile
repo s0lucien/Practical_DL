@@ -92,6 +92,30 @@ RUN set -ex; \
     echo "warnings.filterwarnings('ignore')" | tee -a ${JUPYTER_CONFIG_DIR}/config.py; \
     echo "c.NotebookApp.token = u''" | tee -a ${JUPYTER_CONFIG_DIR}/config.py ;
 
+ENV JUPYTER_PACKAGES="\
+        jupyter_contrib_nbextensions \
+        jupyter-tensorboard \
+        tensorboardX \
+        yapf \
+        "
+
+ENV JUPYTER_EXTENSIONS="\
+        codefolding/main \
+        codefolding/edit \
+        code_prettify/code_prettify \
+        freeze/main \
+        scratchpad/main \
+        scroll_down/main \
+        tree-filter/index \
+        toggle_all_line_numbers/main \
+        varInspector/main \
+        "
+
+RUN set -ex; \
+    pip install -U -v ${JUPYTER_PACKAGES}; \
+    jupyter contrib nbextension install ; \
+    export IFS=" "; for i in ${JUPYTER_EXTENSIONS}; do jupyter nbextension enable "$i"; done ;
+
 
 EXPOSE 8888 6006
 
