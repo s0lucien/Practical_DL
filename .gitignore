@@ -78,3 +78,9 @@ debian/files
 week02_autodiff/notMNIST*
 homework01/mnist.npz
 week03_convnets/cifar_data*
+week04_finetuning/train
+week04_finetuning/cat_vs_dog.h5
+week04_finetuning/data.zip
+week04_finetuning/Donal-Trum-Derogar.jpeg
+week04_finetuning/img.jpg
+week04_finetuning/final_model.pytorch
